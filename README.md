@@ -134,12 +134,19 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.clauth.daemon.plist
 
 ### Releasing
 
-Push a tag like `v0.1.0`. The GitHub Actions workflow builds a universal (arm64 + x86_64)
-app, zips it, and attaches it to a GitHub release with generated notes:
+Publish a GitHub release, and the **Release** workflow builds a universal
+(arm64 + x86_64) app at that release's tag, zips it, and attaches
+`ClauthBar-<version>.zip` to the release a few minutes later. The version
+comes from the tag, with any leading `v` dropped (`v0.2.0` → `0.2.0`).
 
-```sh
-git tag v0.1.0 && git push origin v0.1.0
-```
+- **On GitHub:** Releases → *Draft a new release* → choose or create a tag like `v0.2.0` → *Publish release*.
+- **From the terminal:** `gh release create v0.2.0 --generate-notes`
+
+To rebuild the zip for an existing release, run the workflow from
+Actions → **Release** → *Run workflow* and give it the tag. That replaces the attached zip.
+
+Pushes to `main` and pull requests run the **Build** workflow. It only checks that the
+app builds and keeps the zip as a workflow artifact; it never publishes anything.
 
 ## Acknowledgements
 

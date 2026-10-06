@@ -1,0 +1,52 @@
+name: Release
+
+# Publishing a GitHub release (UI or `gh release create`) builds the app at that
+# release's tag and attaches ClauthBar-<version>.zip to it. Run it manually with
+# a tag to rebuild and re-attach the zip for an existing release.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to build and attach the zip to (e.g. v0.1.1)
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: macos-15
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+          fetch-depth: 0 # commit count feeds CFBundleVersion
+
+      - name: Build universal app
+        run: |
+          export UNIVERSAL=1
+          export VERSION="${TAG#v}"
+          scripts/build-app.sh --zip
+
+      - name: Verify bundle
+        run: |
+          APP=build/ClauthBar.app
+          lipo -archs "$APP/Contents/MacOS/ClauthBar"
+          test -f "$APP/Contents/Resources/AppIcon.icns"
+          plutil -p "$APP/Contents/Info.plist" | grep -E 'CFBundleShortVersionString|CFBundleIconFile'
+          codesign --verify --deep "$APP"
+
+      - name: Attach zip to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$TAG" "build/ClauthBar-${TAG#v}.zip" \
+            --repo "$GITHUB_REPOSITORY" --clobber
