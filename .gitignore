@@ -1,0 +1,13 @@
+# SwiftPM
+.build/
+.swiftpm/
+Package.resolved
+
+# App bundle output
+build/
+
+# macOS / editors
+.DS_Store
+xcuserdata/
+*.swp
+*~
