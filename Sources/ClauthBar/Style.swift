@@ -50,6 +50,7 @@ enum PrefKey {
     static let showPercentText = "showPercentText"
     static let showPace = "showPace"
     static let showSessionReset = "showSessionReset"
+    static let compact = "compact"
 }
 
 struct DisplayPrefs: Equatable {
@@ -59,6 +60,8 @@ struct DisplayPrefs: Equatable {
     var showPercentText = false
     var showPace = true
     var showSessionReset = false
+    /// Replace the strip with a single square of per-profile 5h lines.
+    var compact = false
 
     static func load() -> DisplayPrefs {
         let d = UserDefaults.standard
@@ -72,7 +75,8 @@ struct DisplayPrefs: Equatable {
             showWeekly: b(PrefKey.showWeekly, def.showWeekly),
             showPercentText: b(PrefKey.showPercentText, def.showPercentText),
             showPace: b(PrefKey.showPace, def.showPace),
-            showSessionReset: b(PrefKey.showSessionReset, def.showSessionReset)
+            showSessionReset: b(PrefKey.showSessionReset, def.showSessionReset),
+            compact: b(PrefKey.compact, def.compact)
         )
     }
 }

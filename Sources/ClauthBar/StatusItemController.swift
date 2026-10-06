@@ -100,6 +100,16 @@ final class StatusItemController: NSObject {
         guard force || key != lastRendered else { return }
         lastRendered = key
         stripController?.rootView = strip
+        statusItem?.button?.toolTip = Self.toolTip(for: strip.snapshot.feed)
+    }
+
+    /// Per-profile 5h summary, mostly for the compact square, which has no labels.
+    private static func toolTip(for feed: StatusFeed?) -> String? {
+        guard let profiles = feed?.profiles, !profiles.isEmpty else { return nil }
+        return profiles.map { p in
+            let marker = !p.isCodex && p.name == feed?.activeProfile ? "▸ " : "   "
+            return "\(marker)\(p.name)  5h \(Fmt.percent(p.sessionWindow?.utilizationPct))"
+        }.joined(separator: "\n")
     }
 
     @objc private func togglePopover(_ sender: NSStatusBarButton) {

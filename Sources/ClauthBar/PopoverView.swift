@@ -424,18 +424,23 @@ private struct OptionsMenu: View {
     @AppStorage(PrefKey.showPercentText) private var showPercentText = false
     @AppStorage(PrefKey.showPace) private var showPace = true
     @AppStorage(PrefKey.showSessionReset) private var showSessionReset = false
+    @AppStorage(PrefKey.compact) private var compact = false
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
 
     var body: some View {
         Menu {
             Section("Menu bar") {
-                Toggle("Profile name", isOn: $showName)
-                Toggle("5h session", isOn: $showSession)
-                Toggle("5h reset countdown", isOn: $showSessionReset)
-                Toggle("7d weekly", isOn: $showWeekly)
-                Toggle("Percentages instead of bars", isOn: $showPercentText)
-                Toggle("Pace tick on bars", isOn: $showPace)
-                    .disabled(showPercentText)
+                Toggle("Compact: one 5h line per profile", isOn: $compact)
+                Group {
+                    Toggle("Profile name", isOn: $showName)
+                    Toggle("5h session", isOn: $showSession)
+                    Toggle("5h reset countdown", isOn: $showSessionReset)
+                    Toggle("7d weekly", isOn: $showWeekly)
+                    Toggle("Percentages instead of bars", isOn: $showPercentText)
+                    Toggle("Pace tick on bars", isOn: $showPace)
+                        .disabled(showPercentText)
+                }
+                .disabled(compact)
             }
             Section {
                 Toggle("Launch at login", isOn: Binding(

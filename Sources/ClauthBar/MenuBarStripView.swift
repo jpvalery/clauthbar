@@ -57,11 +57,22 @@ struct MenuBarStripView: View {
     @ViewBuilder
     private var content: some View {
         if let feed = snapshot.feed, feed.schema > StatusFeed.supportedSchema {
-            Label("clauth newer than ClauthBar", systemImage: "exclamationmark.triangle")
-                .font(.system(size: 11, weight: .medium))
+            if snapshot.prefs.compact {
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 13))
+            } else {
+                Label("clauth newer than ClauthBar", systemImage: "exclamationmark.triangle")
+                    .font(.system(size: 11, weight: .medium))
+            }
         } else if snapshot.feed == nil {
             Image(systemName: "person.crop.circle.badge.questionmark")
                 .font(.system(size: 13))
+        } else if snapshot.prefs.compact {
+            ProfileLinesGlyph(
+                profiles: snapshot.feed?.profiles ?? [],
+                activeProfile: snapshot.feed?.activeProfile,
+                dimAll: snapshot.source == .staleFile || snapshot.source == .none
+            )
         } else {
             let prefs = snapshot.prefs
             if prefs.showName || profile == nil {
@@ -144,6 +155,56 @@ struct MenuBarStripView: View {
                 .frame(height: 13)
         }
         .fixedSize()
+    }
+}
+
+/// Compact menu bar mode: one horizontal line per profile, in published order,
+/// stacked inside a single square and colored by 5h utilization (green, then
+/// orange at 75%, red at 90%). A profile with no 5h reading draws faint gray.
+/// The active Claude Code profile's line starts further left than the rest so
+/// it can be picked out without a label. Order stays stable across switches so
+/// each line keeps meaning the same account.
+struct ProfileLinesGlyph: View {
+    let profiles: [StatusFeed.Profile]
+    let activeProfile: String?
+    let dimAll: Bool
+
+    static let side: CGFloat = 16
+    /// Beyond this the lines get thinner than a pixel on non-Retina displays.
+    static let maxLines = 8
+
+    private var shown: ArraySlice<StatusFeed.Profile> { profiles.prefix(Self.maxLines) }
+    private var gap: CGFloat { shown.count <= 5 ? 2 : 1 }
+    private var thickness: CGFloat {
+        let n = CGFloat(max(shown.count, 1))
+        return min(3, (Self.side - gap * (n - 1)) / n)
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: gap) {
+            ForEach(shown) { profile in
+                line(for: profile)
+            }
+        }
+        .frame(width: Self.side, height: Self.side)
+    }
+
+    private func line(for profile: StatusFeed.Profile) -> some View {
+        let isActive = !profile.isCodex && profile.name == activeProfile
+        let leading: CGFloat = isActive ? 0 : 3
+        return Capsule()
+            .fill(Self.color(for: profile))
+            .frame(width: Self.side - leading, height: thickness)
+            .padding(.leading, leading)
+            .opacity(dimAll || profile.isStale ? 0.45 : 1)
+    }
+
+    static func color(for profile: StatusFeed.Profile) -> Color {
+        guard let pct = profile.sessionWindow?.utilizationPct else {
+            return Color.primary.opacity(0.3)
+        }
+        if pct >= 90 { return .red }
+        if pct >= 75 { return .orange }
+        return .green
     }
 }
 

@@ -68,6 +68,11 @@ its own, so clicking twice is harmless.
 
 Use the slider icon in the popover to toggle:
 
+- **compact mode**: replaces everything below with a single square holding one line per
+  profile, colored by its 5h usage (green, orange at 75%, red at 90%, gray when there's no
+  reading). The active profile's line sticks out to the left. Lines keep clauth's profile
+  order, so each one always stands for the same account. Hover for names and percentages,
+  click for details. Handy when other menu bar icons crowd it out.
 - profile name
 - 5h bar and 5h reset countdown
 - 7d bar
@@ -126,7 +131,7 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.clauth.daemon.plist
 | `Sources/ClauthBar/StatusFeed.swift` | Codable model of the schema-2 feed (lenient: unknown fields ignored, absent ones defaulted) |
 | `Sources/ClauthBar/FeedStore.swift` | Polls the file, judges daemon liveness, runs the CLI fallback, starts the daemon |
 | `Sources/ClauthBar/StatusItemController.swift` | `NSStatusItem` + `NSPopover` hosting |
-| `Sources/ClauthBar/MenuBarStripView.swift` | Two-line menu bar modules and the `UsageMeter` |
+| `Sources/ClauthBar/MenuBarStripView.swift` | Two-line menu bar modules, the compact per-profile glyph, and the `UsageMeter` |
 | `Sources/ClauthBar/PopoverView.swift` | Profile cards, daemon/gateway state, options menu |
 | `scripts/build-app.sh` | Builds the `.app` bundle (and generates its `Info.plist`) |
 | `scripts/make-icon.swift` | Turns `logo.png` into the rounded `AppIcon.icns` at build time |
