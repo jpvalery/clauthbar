@@ -1,3 +1,5 @@
+<p align="center"><img src="logo.png" width="128" alt="ClauthBar logo"></p>
+
 # ClauthBar
 
 A small, read-only macOS menu bar display for [clauth](https://github.com/uwuclxdy/clauth).
@@ -22,7 +24,7 @@ personal  5H [■■□□□□|□□]  7D [■■■■■■■■■|■]
 
 ### From a release
 
-Download `ClauthBar-<version>.zip` from [Releases](../../releases), unzip it, and move
+Download `ClauthBar-<version>.zip` from the [latest release](https://github.com/jpvalery/clauthbar/releases/latest), unzip it, and move
 `ClauthBar.app` to `/Applications` or `~/Applications`.
 
 Release builds are ad-hoc signed, not notarized, so the first launch is blocked by
@@ -37,7 +39,7 @@ xattr -dr com.apple.quarantine /Applications/ClauthBar.app
 Only the Xcode Command Line Tools (Swift 6) are needed:
 
 ```sh
-git clone https://github.com/<you>/clauthbar.git
+git clone https://github.com/jpvalery/clauthbar.git
 cd clauthbar
 scripts/build-app.sh --install   # builds, copies to ~/Applications, launches
 ```
@@ -127,6 +129,8 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.clauth.daemon.plist
 | `Sources/ClauthBar/MenuBarStripView.swift` | Two-line menu bar modules and the `UsageMeter` |
 | `Sources/ClauthBar/PopoverView.swift` | Profile cards, daemon/gateway state, options menu |
 | `scripts/build-app.sh` | Builds the `.app` bundle (and generates its `Info.plist`) |
+| `scripts/make-icon.swift` | Turns `logo.png` into the rounded `AppIcon.icns` at build time |
+| `logo.png` | Source artwork for the app icon (square, ≥1024 px) |
 
 ### Releasing
 
